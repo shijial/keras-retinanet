@@ -1,2 +1,9 @@
 __pycache__/
 *.pyc
+/.idea
+*.h5
+/build
+/datasets
+/VOC2007
+*.json
+/dist

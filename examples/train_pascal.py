@@ -36,7 +36,8 @@ def get_session():
 
 def create_model(weights='imagenet'):
     image = keras.layers.Input((None, None, 3))
-    return ResNet50RetinaNet(image, num_classes=20, weights=weights)
+    # return ResNet50RetinaNet(image, num_classes=20, weights=weights)
+    return ResNet50RetinaNet(image, num_classes=1, weights=weights)
 
 
 def parse_args():
@@ -102,12 +103,12 @@ if __name__ == '__main__':
     model.fit_generator(
         generator=train_generator,
         steps_per_epoch=len(train_generator.image_names) // args.batch_size,
-        epochs=50,
+        epochs=20,
         verbose=1,
         validation_data=val_generator,
-        validation_steps=3000,  # len(val_generator.image_names) // args.batch_size,
+        validation_steps=30,  # len(val_generator.image_names) // args.batch_size,
         callbacks=[
-            keras.callbacks.ModelCheckpoint(os.path.join('snapshots', 'resnet50_voc_best.h5'), monitor='val_loss', verbose=1, save_best_only=True),
+            keras.callbacks.ModelCheckpoint(os.path.join('H:\\keras-retinanet-master\\snapshots', 'resnet50_voc_best.h5'), monitor='val_loss', verbose=1, save_best_only=True),
             keras.callbacks.ReduceLROnPlateau(monitor='val_loss', factor=0.1, patience=10, verbose=1, mode='auto', epsilon=0.0001, cooldown=0, min_lr=0),
         ],
     )
