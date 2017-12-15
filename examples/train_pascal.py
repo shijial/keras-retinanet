@@ -27,6 +27,8 @@ from keras_retinanet.utils.keras_version import check_keras_version
 
 import tensorflow as tf
 
+import sys
+print(sys.path)
 
 def get_session():
     config = tf.ConfigProto()
@@ -46,8 +48,10 @@ def parse_args():
     parser.add_argument('--weights', help='Weights to use for initialization (defaults to ImageNet).', default='imagenet')
     parser.add_argument('--batch-size', help='Size of the batches.', default=1, type=int)
     parser.add_argument('--gpu', help='Id of the GPU to use (as reported by nvidia-smi).')
+    parser.add_argument('--eid', help='experment id')
 
     return parser.parse_args()
+
 
 if __name__ == '__main__':
     # parse arguments
@@ -69,13 +73,15 @@ if __name__ == '__main__':
     model.compile(
         loss={
             'regression'    : keras_retinanet.losses.smooth_l1(),
-            'classification': keras_retinanet.losses.focal()
+            # 'classification': keras_retinanet.losses.focal()
+            'classification': keras_retinanet.losses.loss()
+            # 'classification': loss()
         },
         optimizer=keras.optimizers.adam(lr=1e-5, clipnorm=0.001)
     )
 
     # print model summary
-    print(model.summary())
+    # print(model.summary())
 
     # create image data generator objects
     train_image_data_generator = keras.preprocessing.image.ImageDataGenerator(
@@ -103,15 +109,15 @@ if __name__ == '__main__':
     model.fit_generator(
         generator=train_generator,
         steps_per_epoch=len(train_generator.image_names) // args.batch_size,
-        epochs=20,
+        epochs=10,
         verbose=1,
         validation_data=val_generator,
         validation_steps=30,  # len(val_generator.image_names) // args.batch_size,
         callbacks=[
-            keras.callbacks.ModelCheckpoint(os.path.join('H:\\keras-retinanet-master\\snapshots', 'resnet50_voc_best.h5'), monitor='val_loss', verbose=1, save_best_only=True),
+            keras.callbacks.ModelCheckpoint(os.path.join('/home/liuml/retinanet/snapshots', 'resnet50_voc_best.h5'), monitor='val_loss', verbose=1, save_best_only=True),
             keras.callbacks.ReduceLROnPlateau(monitor='val_loss', factor=0.1, patience=10, verbose=1, mode='auto', epsilon=0.0001, cooldown=0, min_lr=0),
         ],
     )
 
     # store final result too
-    model.save(os.path.join('snapshots', 'resnet50_voc_final.h5'))
+    model.save(os.path.join('/home/liuml/retinanet/snapshots', 'resnet50_voc_final_%s.h5')%(args.eid))

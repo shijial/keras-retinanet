@@ -58,7 +58,7 @@ def iou(boxA, boxB):
 
     return calcIOU
 
-def evaluate_voc(generator, model, threshold=0.8):
+def evaluate_voc(generator, model, threshold=0.05):
     # start collecting results
     # results = []
     # image_ids = []
@@ -85,7 +85,7 @@ def evaluate_voc(generator, model, threshold=0.8):
         detections[:, :, 3] -= detections[:, :, 1]
 
 
-        print(generator.image_names[i])
+        # print(generator.image_names[i])
         im_path = os.path.join(generator.data_dir, 'JPEGImages', generator.image_names[i] + generator.image_extension)
         result_img = cv2.imread(im_path)
         # compute predicted labels and scores
@@ -108,6 +108,9 @@ def evaluate_voc(generator, model, threshold=0.8):
                     max_bbox = image_result["bbox"]
                 # append detection to results
                 # results.append(image_result)
+        if max_score == 0:
+            print(max_score)
+            continue
         detection = max_bbox
         bboxs = generator.load_annotations(i)
         # print(bboxs[0])
@@ -115,7 +118,7 @@ def evaluate_voc(generator, model, threshold=0.8):
         results.append([max_score, iou(bboxs, detection)])
         cv2.rectangle(result_img, (int(detection[0]), int(detection[1])), (int(detection[0] + detection[2]), int(detection[1] + detection[3])), (255, 255, 0))
         cv2.rectangle(result_img, (int(bboxs[0]), int(bboxs[1])), (int(bboxs[2]), int(bboxs[3])), (255, 0, 0))
-        cv2.imwrite('H:\\keras-retinanet-master\\snapshots\\%s.jpg'%i, result_img)
+        cv2.imwrite('/home/liuml/retinanet/snapshots/%s.jpg'%i, result_img)
         # append image to list of processed images
         # image_ids.append(generator.image_ids[i])
 
